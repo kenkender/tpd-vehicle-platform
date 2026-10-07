@@ -20,3 +20,8 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         sync: false
+      - key: GOOGLE_SHEETS_ENABLED
+        value: "true"
+      - key: GOOGLE_SCRIPT_URL
+        value: "https://script.google.com/macros/s/AKfycby5e3RSjzkgpzgIHNeBrLJkePgzlswVTKz1-daBVw_qY2GBBMmPuIS81kofNuAhqUwm/exec"
+

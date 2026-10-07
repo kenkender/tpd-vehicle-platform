@@ -134,12 +134,20 @@ async function apply(ops) {
 async function readRows() {
   if (config.google.scriptUrl) {
     try {
-      const res = await fetch(config.google.scriptUrl, {
+      let res = await fetch(config.google.scriptUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get_rows' }),
         redirect: 'follow',
       });
+      if (res.ok) {
+        const json = await res.json().catch(() => ({}));
+        if (json.ok !== false && Array.isArray(json.rows)) {
+          return json.rows;
+        }
+      }
+      // หาก POST ไม่พบ ให้ลอง GET ?action=get_rows
+      res = await fetch(`${config.google.scriptUrl}?action=get_rows`, { redirect: 'follow' });
       if (res.ok) {
         const json = await res.json().catch(() => ({}));
         if (json.ok !== false && Array.isArray(json.rows)) {
