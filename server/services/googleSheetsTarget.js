@@ -13,14 +13,27 @@ let cachedSheetId = null;
 
 async function client() {
   if (!authClient) {
-    if (!fs.existsSync(config.google.keyFile)) {
-      throw new Error(`ไม่พบไฟล์ Service Account: ${config.google.keyFile}`);
+    const rawJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (rawJson && rawJson.trim()) {
+      try {
+        const credentials = JSON.parse(rawJson);
+        const auth = new GoogleAuth({
+          credentials,
+          scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+        authClient = await auth.getClient();
+      } catch (e) {
+        throw new Error(`GOOGLE_SERVICE_ACCOUNT_JSON ใน Environment Variables ไม่ถูกต้อง: ${e.message}`);
+      }
+    } else if (fs.existsSync(config.google.keyFile)) {
+      const auth = new GoogleAuth({
+        keyFile: config.google.keyFile,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      });
+      authClient = await auth.getClient();
+    } else {
+      throw new Error(`ไม่พบไฟล์ Service Account และยังไม่ได้ตั้งค่า GOOGLE_SERVICE_ACCOUNT_JSON ใน Environment Variables บน Render`);
     }
-    const auth = new GoogleAuth({
-      keyFile: config.google.keyFile,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    authClient = await auth.getClient();
   }
   return authClient;
 }
