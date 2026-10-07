@@ -25,11 +25,11 @@ const config = {
     defaultAllowEnd: process.env.DEFAULT_ALLOW_END || '2030-12-31T23:59:59+07:00',
   },
   google: {
-    enabled: bool(process.env.GOOGLE_SHEETS_ENABLED, false),
+    enabled: bool(process.env.GOOGLE_SHEETS_ENABLED, true),
     sheetId: (process.env.GOOGLE_SHEET_ID || '').startsWith('https://') ? '' : (process.env.GOOGLE_SHEET_ID || ''),
     gid: process.env.GOOGLE_SHEET_GID || '',
     keyFile: abs(process.env.GOOGLE_SERVICE_ACCOUNT_FILE || './data/google-service-account.json'),
-    scriptUrl: process.env.GOOGLE_SCRIPT_URL || ((process.env.GOOGLE_SHEET_ID || '').startsWith('https://') ? process.env.GOOGLE_SHEET_ID : ''),
+    scriptUrl: process.env.GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycby5e3RSjzkgpzgIHNeBrLJkePgzlswVTKz1-daBVw_qY2GBBMmPuIS81kofNuAhqUwm/exec',
   },
   lprApiKey: process.env.LPR_API_KEY || '',
 };
