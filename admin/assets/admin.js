@@ -405,6 +405,19 @@
       loadSync();
     } catch (e) { toast(e.message, 'err'); } finally { btn.disabled = false; }
   }
+  async function pullFromSheet() {
+    const btn = $('#pullBtn'); if (btn) btn.disabled = true;
+    try {
+      const r = await api('/sync/pull', { method: 'POST' });
+      if (r.message) {
+        toast(`ไม่สามารถดึงข้อมูลได้: ${r.message}`, 'err');
+      } else {
+        toast(`ดึงข้อมูลทะเบียนใหม่ ${r.count} รายการ (จาก ${r.totalSheets} รายการใน Google Sheet) แล้ว`, 'ok');
+      }
+      loadSync();
+      refreshAll();
+    } catch (e) { toast(e.message, 'err'); } finally { if (btn) btn.disabled = false; }
+  }
 
   /* ---------- settings ---------- */
   async function loadAudit() {
@@ -465,6 +478,7 @@
     $('#lq').addEventListener('input', debounce((e) => { state.logQ = e.target.value.trim(); state.logPage = 1; loadLogs(); }));
     $('#ldir').addEventListener('change', (e) => { state.logDir = e.target.value; state.logPage = 1; loadLogs(); });
     $('#resyncBtn').addEventListener('click', resyncAll);
+    const pullBtn = $('#pullBtn'); if (pullBtn) pullBtn.addEventListener('click', pullFromSheet);
     $('#pwForm').addEventListener('submit', changePw);
 
     const start = (location.hash || '#vehicles').slice(1);

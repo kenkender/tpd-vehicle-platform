@@ -107,10 +107,11 @@
         <h2>สถานะการเชื่อมต่อ</h2>
         <div class="targets" id="targets"></div>
         <div class="row-actions">
-          <button class="btn btn-primary" id="resyncBtn" type="button">🔄 ซิงก์ใหม่ทั้งหมด</button>
+          <button class="btn btn-primary" id="resyncBtn" type="button">🔄 ซิงก์ส่งออกทั้งหมด</button>
+          <button class="btn btn-secondary" id="pullBtn" type="button">📥 ดึงข้อมูลจาก Google Sheet</button>
           <a class="btn" href="/api/admin/export/plate_whitelist.xlsx" download="plate_whitelist.xlsx" id="dlExcel">⬇ ดาวน์โหลดไฟล์ Excel (Hikvision)</a>
         </div>
-        <p class="muted">ซิงก์ใหม่จะ <b>เพิ่ม/แก้ไข</b> เฉพาะแถวของทะเบียนที่อยู่ในฐานข้อมูล ไม่ลบแถวอื่นที่มีอยู่เดิมในไฟล์</p>
+        <p class="muted">ซิงก์ส่งออกจะ <b>เพิ่ม/แก้ไข</b> แถวใน Google Sheet/Excel จากฐานข้อมูลเว็บ | ซิงก์ดึงข้อมูลจะ <b>ดึงป้ายทะเบียนใน Google Sheet</b> กลับเข้ามาในฐานข้อมูลเว็บ</p>
       </div>
       <div class="card section-card">
         <h2>รายการที่ซิงก์ไม่สำเร็จ</h2>

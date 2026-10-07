@@ -111,4 +111,52 @@ function removePlatesIfOrphaned(plateNorms) {
   return syncPlates(plateNorms.filter(Boolean));
 }
 
-module.exports = { syncPlates, resyncAll, removePlatesIfOrphaned, toHik, targetsEnabled, computeRow };
+/** ดึงข้อมูลทั้งหมดจาก Google Sheet กลับเข้ามาในฐานข้อมูล SQLite */
+async function pullFromSheets() {
+  if (!config.google.enabled) {
+    return { count: 0, totalSheets: 0, message: 'ไม่ได้เปิดใช้งาน GOOGLE_SHEETS_ENABLED=true' };
+  }
+  try {
+    const rows = await sheetsTarget.readRows();
+    if (!rows.length) return { count: 0, totalSheets: 0, message: 'ไม่พบข้อมูลใน Google Sheet หรือไม่สามารถอ่านชีตได้' };
+
+    let added = 0;
+    const { normalizePlate } = require('./plate');
+
+    // ค้นหาหรือสร้างเจ้าของรถเริ่มต้นสำหรับรายการที่นำเข้าจาก Google Sheet
+    let owner = db.prepare('SELECT id FROM owners WHERE full_name = ?').get('ซิงก์อัตโนมัติ (Google Sheet)');
+    if (!owner) {
+      const info = db.prepare(`INSERT INTO owners (full_name, phone, affiliation) VALUES (?,?,?)`)
+        .run('ซิงก์อัตโนมัติ (Google Sheet)', '-', 'Google Sheet');
+      owner = { id: Number(info.lastInsertRowid) };
+    }
+
+    const tx = db.transaction((list) => {
+      for (const r of list) {
+        const norm = normalizePlate(r.plate);
+        if (!norm) continue;
+        const exists = db.prepare('SELECT id FROM vehicles WHERE plate_norm = ?').get(norm);
+        if (!exists) {
+          const status = String(r.belongTo).toLowerCase() === 'blocklist' ? 'blocked' : 'allowed';
+          const memberType = status === 'blocked' ? 'blacklist' : 'official';
+          db.prepare(`INSERT INTO vehicles 
+            (plate_number, plate_norm, province, plate_prefix, plate_digits, plate_type, brand, model, body_type, color,
+             owner_id, member_type, visit_target, status, valid_from, valid_to, note, excel_status, sheet_status)
+            VALUES (?, ?, 'กรุงเทพมหานคร', '', '', 'normal', 'ไม่ระบุ', 'ไม่ระบุ', 'sedan', 'white',
+             ?, ?, 'ปฏิบัติหน้าที่', ?, ?, ?, 'ซิงก์ดึงข้อมูลจาก Google Sheet', 'ok', 'ok')`).run(
+            r.plate, norm, owner.id, memberType, status, r.start || null, r.end || null
+          );
+          added++;
+        }
+      }
+    });
+    tx(rows);
+
+    return { count: added, totalSheets: rows.length };
+  } catch (e) {
+    console.error('[pullFromSheets error]', e);
+    return { count: 0, totalSheets: 0, message: e.message };
+  }
+}
+
+module.exports = { syncPlates, resyncAll, removePlatesIfOrphaned, pullFromSheets, toHik, targetsEnabled, computeRow };

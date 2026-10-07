@@ -129,6 +129,12 @@ router.post('/sync', async (req, res) => {
   res.json({ ok: !result.errors.length, count: result.count || 0, sync: syncSummary(result) });
 });
 
+router.post('/sync/pull', async (req, res) => {
+  audit(req, 'pull_from_google_sheets');
+  const result = await sync.pullFromSheets();
+  res.json({ ok: !result.message, ...result });
+});
+
 const handleExcelExport = async (req, res) => {
   try {
     if (!fs.existsSync(config.excel.path)) {

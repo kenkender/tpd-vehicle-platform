@@ -118,4 +118,46 @@ async function apply(ops) {
   }
 }
 
-module.exports = { apply };
+async function readRows() {
+  if (config.google.scriptUrl) {
+    try {
+      const res = await fetch(config.google.scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_rows' }),
+        redirect: 'follow',
+      });
+      if (res.ok) {
+        const json = await res.json().catch(() => ({}));
+        if (json.ok !== false && Array.isArray(json.rows)) {
+          return json.rows;
+        }
+      }
+    } catch (e) {
+      console.warn('[google-sheets] scriptUrl get_rows failed:', e.message);
+    }
+  }
+
+  if (!config.google.sheetId) return [];
+  const { title } = await resolveSheet();
+  const id = config.google.sheetId;
+  const res = await call(`${BASE}/${id}/values/${encodeURIComponent(`${q(title)}!A:E`)}`);
+  const values = res.values || [];
+  if (values.length <= 1) return [];
+
+  const rows = [];
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    if (!r || !r[0]) continue;
+    rows.push({
+      plate: String(r[0]).trim(),
+      belongTo: String(r[1] || 'Allowlist').trim(),
+      cardNo: String(r[2] || '').trim(),
+      start: String(r[3] || '').trim(),
+      end: String(r[4] || '').trim(),
+    });
+  }
+  return rows;
+}
+
+module.exports = { apply, readRows };

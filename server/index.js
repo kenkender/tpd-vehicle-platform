@@ -74,6 +74,18 @@ function ensureAdmin() {
 }
 ensureAdmin();
 
+// ---------- ซิงก์ดึงข้อมูลจาก Google Sheet เมื่อเซิร์ฟเวอร์เริ่มต้น ----------
+if (config.google.enabled) {
+  const sync = require('./services/syncService');
+  sync.pullFromSheets()
+    .then((r) => {
+      if (r.count > 0) {
+        console.log(`[google-sheet] 📥 ดึงข้อมูลรถ ${r.count} คัน (จากทั้งหมด ${r.totalSheets} แถวใน Google Sheet) เข้าฐานข้อมูลสำเร็จ`);
+      }
+    })
+    .catch((e) => console.error('[google-sheet auto-pull error]', e.message));
+}
+
 if (require.main === module) {
   app.listen(config.port, () => {
     console.log(`\n  ระบบทะเบียนยานพาหนะ ตท.`);
