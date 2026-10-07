@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ลงทะเบียนยานพาหนะ | กองบัญชาการตำรวจท่องเที่ยว</title>
+  <meta name="description" content="แบบฟอร์มลงทะเบียนยานพาหนะสำหรับเข้า-ออกสถานที่ กองบัญชาการตำรวจท่องเที่ยว กรอกได้ทั้งบนคอมพิวเตอร์และมือถือ">
+  <meta name="theme-color" content="#0b1533">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/form.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="หน้าแรก">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffdb8a"/><stop offset="1" stop-color="#e79b1f"/></linearGradient>
+          </defs>
+          <path d="M24 3l17 6v13c0 11-7.2 19.2-17 23C14.2 41.2 7 33 7 22V9z" fill="url(#bg)"/>
+          <path d="M14.5 27.5l2-6c.4-1.1 1.4-1.8 2.6-1.8h9.8c1.2 0 2.2.7 2.6 1.8l2 6v5.2c0 .6-.5 1.1-1.1 1.1h-1.5c-.6 0-1.1-.5-1.1-1.1V31h-12v1.7c0 .6-.5 1.1-1.1 1.1h-1.5c-.6 0-1.1-.5-1.1-1.1z" fill="#0b1533"/>
+          <circle cx="19" cy="27.2" r="1.7" fill="#ffdb8a"/><circle cx="29" cy="27.2" r="1.7" fill="#ffdb8a"/>
+        </svg>
+        <span class="brand-text">
+          <strong>กองบัญชาการตำรวจท่องเที่ยว</strong>
+          <small>ระบบลงทะเบียนยานพาหนะ</small>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <main class="layout" id="main">
+    <aside class="side" aria-label="ตัวอย่างป้ายทะเบียน">
+      <div class="side-card card">
+        <p class="side-kicker">ตัวอย่างป้ายทะเบียน</p>
+        <div class="plate-stage">
+          <div class="plate t-white_black" id="platePreview" role="img" aria-live="polite">
+            <span class="plate-num" id="platePreviewNum">1กก 9999</span>
+            <span class="plate-prov" id="platePreviewProv">กรุงเทพมหานคร</span>
+          </div>
+        </div>
+        <p class="side-note" id="normHint">ระบบจะจัดเก็บเป็น <b id="normValue">1กก9999</b> เพื่อให้ค้นหาและเชื่อมกล้อง LPR ได้แม่นยำ</p>
+        <ul class="side-list">
+          <li><span class="dot"></span>ทะเบียนเดียวกันแต่คนละจังหวัด ถือเป็นรถคนละคัน</li>
+          <li><span class="dot"></span>ข้อมูลจะถูกตรวจสอบโดยผู้ดูแลระบบก่อนอนุมัติ</li>
+          <li><span class="dot"></span>ข้อมูลส่วนบุคคลถูกเข้ารหัสและเข้าถึงได้เฉพาะแอดมิน</li>
+        </ul>
+      </div>
+    </aside>
+
+    <div class="main-col">
+      <section class="hero">
+        <span class="chip-live"><i></i> เปิดรับลงทะเบียน</span>
+        <h1>ลงทะเบียนยานพาหนะ</h1>
+        <p>กรอกข้อมูลรถและเจ้าของรถ เพื่อใช้ในการเข้า-ออกสถานที่ กองบัญชาการตำรวจท่องเที่ยว</p>
+      </section>
+
+      <form id="vehicleForm" class="form" novalidate autocomplete="off">
+        <!-- honeypot กันบอท (ผู้ใช้จริงมองไม่เห็น) -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div id="formAlert" class="alert hidden" role="alert"></div>
+
+        <!-- 1. ป้ายทะเบียน -->
+        <section class="card section" id="sec-plate">
+          <div class="section-head"><span class="step">1</span><span><h2>ป้ายทะเบียน</h2><small>จำเป็นต้องกรอกทุกช่อง</small></span></div>
+          <div class="grid g2">
+            <div class="field" data-field="plate_number">
+              <label for="plate_number">เลขทะเบียน <span class="req">*</span></label>
+              <input type="text" id="plate_number" name="plate_number" placeholder="เช่น 1กก 9999" maxlength="20" inputmode="text" autocapitalize="characters" spellcheck="false" required>
+              <span class="help">ไม่ต้องใส่ขีดหรือเว้นวรรคก็ได้ ระบบจัดรูปแบบให้</span>
+              <span class="error-text"></span>
+            </div>
+            <div class="field" data-field="province">
+              <label for="province">จังหวัด <span class="req">*</span></label>
+              <select id="province" name="province" required><option value="">— เลือกจังหวัด —</option></select>
+              <span class="error-text"></span>
+            </div>
+          </div>
+          <div class="field" data-field="plate_type">
+            <span class="label">ประเภทป้ายทะเบียน <span class="req">*</span></span>
+            <div class="choice-grid cols-3" id="plateTypeGroup" role="radiogroup" aria-label="ประเภทป้ายทะเบียน"></div>
+            <span class="error-text"></span>
+          </div>
+        </section>
+
+        <!-- 2. ข้อมูลรถ -->
+        <section class="card section" id="sec-vehicle">
+          <div class="section-head"><span class="step">2</span><span><h2>ข้อมูลตัวรถ</h2><small>ยี่ห้อ รุ่น ประเภทตัวถัง และสี</small></span></div>
+          <div class="grid g2">
+            <div class="field" data-field="brand">
+              <label for="brand">ยี่ห้อ <span class="req">*</span></label>
+              <input type="text" id="brand" name="brand" list="brandList" placeholder="เช่น Toyota, Honda, BYD, Isuzu" maxlength="60" required>
+              <datalist id="brandList"></datalist>
+              <span class="error-text"></span>
+            </div>
+            <div class="field" data-field="model">
+              <label for="model">รุ่น <span class="req">*</span></label>
+              <input type="text" id="model" name="model" list="modelList" placeholder="เช่น Civic, D-Max, Atto 3" maxlength="60" required>
+              <datalist id="modelList"></datalist>
+              <span class="error-text"></span>
+            </div>
+          </div>
+          <div class="field" data-field="body_type">
+            <span class="label">ประเภทตัวถัง <span class="req">*</span></span>
+            <div class="chips" id="bodyTypeGroup" role="radiogroup" aria-label="ประเภทตัวถัง"></div>
+            <span class="error-text"></span>
+          </div>
+          <div class="field" data-field="color">
+            <span class="label">สีรถ <span class="req">*</span></span>
+            <div class="chips colors" id="colorGroup" role="radiogroup" aria-label="สีรถ"></div>
+            <input type="text" id="colorOther" class="hidden" placeholder="ระบุสีรถ" maxlength="40" aria-label="ระบุสีรถ">
+            <span class="error-text"></span>
+          </div>
+        </section>
+
+        <!-- 3. เจ้าของ -->
+        <section class="card section" id="sec-owner">
+          <div class="section-head"><span class="step">3</span><span><h2>ผู้ครอบครอง / เจ้าของรถ</h2><small>ข้อมูลถูกเข้ารหัสและเห็นได้เฉพาะผู้ดูแลระบบ</small></span></div>
+          <div class="field" data-field="member_type">
+            <span class="label">สถานะของท่าน <span class="req">*</span></span>
+            <div class="choice-grid cols-3" id="memberGroup" role="radiogroup" aria-label="สถานะ"></div>
+            <span class="error-text"></span>
+          </div>
+          <div class="grid g2">
+            <div class="field" data-field="owner_name">
+              <label for="owner_name">ชื่อ-นามสกุล <span class="req">*</span></label>
+              <input type="text" id="owner_name" name="owner_name" placeholder="เช่น สมชาย ใจดี" maxlength="120" autocomplete="name" required>
+              <span class="error-text"></span>
+            </div>
+            <div class="field" data-field="phone">
+              <label for="phone">เบอร์โทรศัพท์ติดต่อ <span class="req">*</span></label>
+              <input type="tel" id="phone" name="phone" placeholder="08x-xxx-xxxx" maxlength="20" inputmode="tel" autocomplete="tel" required>
+              <span class="error-text"></span>
+            </div>
+            <div class="field" data-field="national_id">
+              <label for="national_id">เลขบัตรประชาชน <span class="req" id="nidReq">*</span><span class="opt hidden" id="nidOpt">(ไม่บังคับสำหรับผู้มาติดต่อ)</span></label>
+              <input type="text" id="national_id" name="national_id" placeholder="x-xxxx-xxxxx-xx-x" maxlength="17" inputmode="numeric" autocomplete="off">
+              <span class="help">13 หลัก — จัดเก็บแบบเข้ารหัส</span>
+              <span class="error-text"></span>
+            </div>
+            <div class="field" data-field="affiliation">
+              <label for="affiliation">ที่อยู่ / แผนก / สังกัด <span class="req">*</span></label>
+              <input type="text" id="affiliation" name="affiliation" placeholder="เช่น กองกำกับการ 1 / บริษัท ABC" maxlength="200" required>
+              <span class="error-text"></span>
+            </div>
+          </div>
+          <div class="field hidden" data-field="visit_target" id="visitTargetField">
+            <label for="visit_target">บ้านเลขที่ / ห้อง / หน่วยงานที่มาติดต่อ <span class="req">*</span></label>
+            <input type="text" id="visit_target" name="visit_target" placeholder="เช่น ฝ่ายอำนวยการ ชั้น 3" maxlength="200">
+            <span class="error-text"></span>
+          </div>
+        </fieldset>
+
+        <div class="submit-bar">
+          <p class="consent">การกดส่งถือว่าท่านยินยอมให้เก็บและใช้ข้อมูลเพื่อการควบคุมการเข้า-ออกสถานที่ตามนโยบายคุ้มครองข้อมูลส่วนบุคคล</p>
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+            <span class="btn-label">บันทึกข้อมูล</span>
+          </button>
+        </div>
+      </form>
+
+      <section id="success" class="card success hidden" aria-live="polite" tabindex="-1">
+        <div class="check"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2>บันทึกข้อมูลเรียบร้อย</h2>
+        <p>ผู้ดูแลระบบจะตรวจสอบและอนุมัติข้อมูลของท่านโดยเร็ว</p>
+        <div class="ref-box"><small>เลขที่อ้างอิง</small><strong id="refNo">TPD-000000</strong></div>
+        <div class="plate-stage"><div class="plate" id="successPlate"><span class="plate-num"></span><span class="plate-prov"></span></div></div>
+        <button type="button" class="btn btn-primary" id="againBtn">ลงทะเบียนรถคันอื่น</button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© กองบัญชาการตำรวจท่องเที่ยว · ระบบลงทะเบียนยานพาหนะ</p>
+  </footer>
+
+  <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+  <script src="/js/form.js"></script>
+</body>
+</html>
