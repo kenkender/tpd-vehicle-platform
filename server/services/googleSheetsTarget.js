@@ -157,6 +157,9 @@ async function readRows() {
     } catch (e) {
       console.warn('[google-sheets] scriptUrl get_rows failed:', e.message);
     }
+    if (!fs.existsSync(config.google.keyFile) && !process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+      throw new Error('โค้ดใน Apps Script ของ Google Sheet ยังเป็นเวอร์ชันเดิม — โปรดก๊อปปี้โค้ดใหม่ไปวางใน Apps Script (ดูในไฟล์ docs/GOOGLE_SHEETS_SETUP.md)');
+    }
   }
 
   if (!config.google.sheetId) return [];

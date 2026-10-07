@@ -14,29 +14,71 @@
 
 ```javascript
 function doPost(e) {
+  return handleRequest(e);
+}
+
+function doGet(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
     
     // สร้างแถวหัวตารางถ้ายังไม่มี
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(['License Plate Number', 'Belong to', 'Card No.', 'Start Time For Entry', 'End Time For Entry']);
     }
-    
+
+    var action = 'sync';
+    var data = {};
+    if (e && e.postData && e.postData.contents) {
+      try { data = JSON.parse(e.postData.contents); } catch(err) {}
+      action = data.action || 'sync';
+    } else if (e && e.parameter && e.parameter.action) {
+      action = e.parameter.action;
+    }
+
+    // กรณีอ่านข้อมูลทั้งหมด (get_rows)
+    if (action === 'get_rows') {
+      var lastRow = sheet.getLastRow();
+      if (lastRow <= 1) {
+        return ContentService.createTextOutput(JSON.stringify({ ok: true, rows: [] }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      var rangeValues = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
+      var rows = [];
+      for (var i = 0; i < rangeValues.length; i++) {
+        var r = rangeValues[i];
+        if (r[0]) {
+          rows.push({
+            plate: String(r[0]).trim(),
+            belongTo: String(r[1] || 'Allowlist').trim(),
+            cardNo: String(r[2] || '').trim(),
+            start: r[3] ? String(r[3]) : '',
+            end: r[4] ? String(r[4]) : ''
+          });
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ ok: true, rows: rows }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // กรณีเขียน/ซิงก์ข้อมูล (sync)
     var ops = data.ops || [];
     var values = sheet.getDataRange().getValues();
     var indexMap = {};
-    for (var i = 1; i < values.length; i++) {
-      var plate = String(values[i][0] || '').trim().toUpperCase();
-      if (plate) indexMap[plate] = i + 1;
+    for (var j = 1; j < values.length; j++) {
+      var plate = String(values[j][0] || '').trim().toUpperCase();
+      if (plate) indexMap[plate] = j + 1;
     }
-    
+
     var rowsToDelete = [];
     for (var k = 0; k < ops.length; k++) {
       var op = ops[k];
       var key = String(op.plate || '').trim().toUpperCase();
       var rowIndex = indexMap[key];
-      
+
       if (op.row) {
         var rowData = [op.row.plate, op.row.belongTo, op.row.cardNo || '', op.row.start || '', op.row.end || ''];
         if (rowIndex) {
@@ -50,12 +92,12 @@ function doPost(e) {
         delete indexMap[key];
       }
     }
-    
+
     rowsToDelete.sort(function(a, b) { return b - a; });
     for (var d = 0; d < rowsToDelete.length; d++) {
       sheet.deleteRow(rowsToDelete[d]);
     }
-    
+
     return ContentService.createTextOutput(JSON.stringify({ ok: true, synced: ops.length }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
