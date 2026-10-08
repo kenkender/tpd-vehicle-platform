@@ -47,7 +47,7 @@
         <ul class="side-list">
           <li><span class="dot"></span>ทะเบียนเดียวกันแต่คนละจังหวัด ถือเป็นรถคนละคัน</li>
           <li><span class="dot"></span>ข้อมูลจะถูกตรวจสอบโดยผู้ดูแลระบบก่อนอนุมัติ</li>
-          <li><span class="dot"></span>ข้อมูลส่วนบุคคลถูกเข้ารหัสและเข้าถึงได้เฉพาะแอดมิน</li>
+          <li><span class="dot"></span>🔒 ข้อมูลส่วนบุคคลถูกเข้ารหัส จัดเก็บในระบบภายใน <b>ไม่นำขึ้นระบบคลาวด์สาธารณะ</b></li>
         </ul>
       </div>
     </aside>
@@ -160,7 +160,7 @@
         </fieldset>
 
         <div class="submit-bar">
-          <p class="consent">การกดส่งถือว่าท่านยินยอมให้เก็บและใช้ข้อมูลเพื่อการควบคุมการเข้า-ออกสถานที่ตามนโยบายคุ้มครองข้อมูลส่วนบุคคล</p>
+          <p class="consent">🔒 <b>นโยบายความคุ้มครองข้อมูลส่วนบุคคล (PDPA):</b> ข้อมูลของท่านจะถูกเข้ารหัสความปลอดภัยสูงสุด จัดเก็บเฉพาะในระบบภายใน <b>และจะไม่ถูกนำขึ้นสู่ระบบคลาวด์สาธารณะ</b> การกดส่งถือว่าท่านยินยอมให้ใช้ข้อมูลเพื่อการควบคุมการเข้า-ออกสถานที่</p>
           <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
             <span class="btn-label">บันทึกข้อมูล</span>
           </button>
@@ -181,6 +181,19 @@
   <footer class="footer">
     <p>© กองบัญชาการตำรวจท่องเที่ยว · ระบบลงทะเบียนยานพาหนะ</p>
   </footer>
+
+  <!-- Modal ป๊อปอัพแจ้งเตือนเมื่อลงทะเบียนสำเร็จ -->
+  <div class="modal-backdrop hidden" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-check">
+        <svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-width="3"/><path d="M15 27l8 8 14-16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2 id="modalTitle">บันทึกข้อมูลสำเร็จ</h2>
+      <p class="modal-desc">กรุณารอผู้ดูแลระบบอนุมัติ</p>
+      <div class="modal-ref"><small>เลขที่อ้างอิง</small><strong id="modalRefNo">TPD-000000</strong></div>
+      <button type="button" class="btn btn-primary btn-block" id="modalOkBtn">ตกลง</button>
+    </div>
+  </div>
 
   <div class="toast-wrap" id="toasts" aria-live="polite"></div>
   <script src="/js/form.js"></script>

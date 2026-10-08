@@ -6,7 +6,7 @@
   const THAI_DIGITS = '๐๑๒๓๔๕๖๗๘๙';
 
   const COLOR_DOT = {
-    'ขาว': '#f5f5f5', 'ดำ': '#111', 'เทา': '#8a8f98', 'บรอนซ์เงิน': '#b9b4a8', 'เงิน': '#c8ccd2', 'แดง': '#d6232f',
+    'ขาว': '#f5f5f5', 'ดำ': '#111', 'เทา': '#8a8f98', 'เงิน': '#c8ccd2', 'แดง': '#d6232f',
     'น้ำเงิน': '#1f4fd8', 'ฟ้า': '#4aa8ff', 'เขียว': '#1f9d55', 'เหลือง': '#ffd21f', 'ส้ม': '#ff7a1a',
     'น้ำตาล': '#7a4b2a', 'บรอนซ์ทอง': '#b08d57', 'ทอง': '#d4af37', 'ชมพู': '#ff7eb6', 'ม่วง': '#7b4bd6', 'ครีม': '#f1e4c3',
     'หลายสี': 'conic-gradient(#ff5d73, #ffd21f, #2fd9aa, #5b8cff, #ff5d73)',
@@ -251,6 +251,9 @@
 
   function showSuccess(ref, d) {
     $('#refNo').textContent = ref || 'OK';
+    $('#modalRefNo').textContent = ref || 'OK';
+    $('#successModal').classList.remove('hidden');
+    setTimeout(() => $('#modalOkBtn').focus(), 100);
     const p = $('#successPlate');
     p.className = `plate t-${d.plate_type}`;
     p.querySelector('.plate-num').textContent = formatPlate(normalizePlate(d.plate_number));
@@ -278,6 +281,7 @@
   function bind() {
     form.addEventListener('submit', submit);
     $('#againBtn').addEventListener('click', reset);
+    $('#modalOkBtn').addEventListener('click', () => $('#successModal').classList.add('hidden'));
 
     $('#plate_number').addEventListener('input', (e) => {
       e.target.value = e.target.value.toUpperCase();
