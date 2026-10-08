@@ -137,11 +137,12 @@ router.post('/sync/pull', async (req, res) => {
 
 const handleExcelExport = async (req, res) => {
   try {
-    if (!fs.existsSync(config.excel.path)) {
-      await sync.resyncAll();
-    }
+    await sync.resyncAll();
     audit(req, 'download_excel');
     const fullPath = path.resolve(config.excel.path);
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ error: 'not_found', message: 'ไม่พบไฟล์ Excel' });
+    }
     const stat = fs.statSync(fullPath);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename="plate_whitelist.xlsx"');

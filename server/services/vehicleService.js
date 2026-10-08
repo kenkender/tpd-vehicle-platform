@@ -147,6 +147,7 @@ function serialize(r, { reveal = false } = {}) {
     valid_from: r.valid_from,
     valid_to: r.valid_to,
     note: r.note,
+    telegram_chat_id: r.telegram_chat_id,
     owner_name: r.owner_name,
     phone: r.owner_phone,
     affiliation: r.owner_affiliation,

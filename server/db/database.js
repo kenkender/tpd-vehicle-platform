@@ -10,4 +10,10 @@ db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 db.exec(fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8'));
 
+try {
+  db.exec('ALTER TABLE vehicles ADD COLUMN telegram_chat_id TEXT;');
+} catch (e) {
+  // Column already exists
+}
+
 module.exports = db;

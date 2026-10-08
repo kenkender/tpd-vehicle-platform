@@ -31,6 +31,34 @@ function computeRow(plateNorm) {
   };
 }
 
+function computeFullRow(plateNorm) {
+  const SELECT_JOIN = `SELECT v.*, o.full_name AS owner_name, o.phone AS owner_phone, o.affiliation AS owner_affiliation,
+    o.national_id_last4 AS nid_last4, (o.national_id_enc IS NOT NULL) AS has_nid
+    FROM vehicles v JOIN owners o ON o.id = v.owner_id`;
+  const v = db.prepare(`${SELECT_JOIN} WHERE v.plate_norm = ? ORDER BY v.id DESC LIMIT 1`).get(plateNorm);
+  if (!v) return null;
+  return {
+    plate_number: v.plate_number,
+    plate_norm: v.plate_norm,
+    province: v.province,
+    plate_type: v.plate_type,
+    brand: v.brand,
+    model: v.model,
+    body_type: v.body_type,
+    color: v.color,
+    member_type: v.member_type,
+    owner_name: v.owner_name,
+    phone: v.owner_phone,
+    affiliation: v.owner_affiliation,
+    national_id: v.has_nid ? `•••••••••${v.nid_last4}` : '',
+    status: v.status,
+    telegram_chat_id: v.telegram_chat_id || '',
+    visit_target: v.visit_target || '',
+    note: v.note || '',
+    created_at: v.created_at || '',
+  };
+}
+
 // รูปแบบเวลาเดียวกับเทมเพลต Hikvision เช่น 2026-10-07T14:30:00+07:00 (เวลาไทย)
 function toHik(date = new Date()) {
   const th = new Date(date.getTime() + 7 * 3600 * 1000);
@@ -87,7 +115,7 @@ function syncPlates(plateNorms) {
   const unique = [...new Set(plateNorms.filter(Boolean))];
   if (!unique.length) return Promise.resolve({ excel: 'off', sheet: 'off', errors: [] });
   return enqueue(async () => {
-    const ops = unique.map((p) => ({ plate: p, row: computeRow(p) }));
+    const ops = unique.map((p) => ({ plate: p, row: computeRow(p), fullRow: computeFullRow(p) }));
     const result = await runOps(ops);
     recordResult(unique, result);
     return result;
@@ -99,7 +127,7 @@ function resyncAll() {
   return enqueue(async () => {
     const plates = db.prepare('SELECT DISTINCT plate_norm FROM vehicles').all().map((r) => r.plate_norm);
     if (!plates.length) return { excel: 'off', sheet: 'off', errors: [], count: 0 };
-    const ops = plates.map((p) => ({ plate: p, row: computeRow(p) }));
+    const ops = plates.map((p) => ({ plate: p, row: computeRow(p), fullRow: computeFullRow(p) }));
     const result = await runOps(ops);
     recordResult(plates, result);
     return { ...result, count: plates.length };
@@ -123,30 +151,48 @@ async function pullFromSheets() {
     let added = 0;
     const { normalizePlate } = require('./plate');
 
-    // ค้นหาหรือสร้างเจ้าของรถเริ่มต้นสำหรับรายการที่นำเข้าจาก Google Sheet
-    let owner = db.prepare('SELECT id FROM owners WHERE full_name = ?').get('ซิงก์อัตโนมัติ (Google Sheet)');
-    if (!owner) {
-      const info = db.prepare(`INSERT INTO owners (full_name, phone, affiliation) VALUES (?,?,?)`)
-        .run('ซิงก์อัตโนมัติ (Google Sheet)', '-', 'Google Sheet');
-      owner = { id: Number(info.lastInsertRowid) };
-    }
-
     const tx = db.transaction((list) => {
       for (const r of list) {
-        const norm = normalizePlate(r.plate);
+        const norm = normalizePlate(r.plate_norm || r.plate);
         if (!norm) continue;
         const exists = db.prepare('SELECT id FROM vehicles WHERE plate_norm = ?').get(norm);
         if (!exists) {
-          const status = String(r.belongTo).toLowerCase() === 'blocklist' ? 'blocked' : 'allowed';
-          const memberType = status === 'blocked' ? 'blacklist' : 'official';
+          const ownerName = r.owner_name || 'ซิงก์อัตโนมัติ (Google Sheet)';
+          let owner = db.prepare('SELECT id FROM owners WHERE full_name = ?').get(ownerName);
+          if (!owner) {
+            const info = db.prepare(`INSERT INTO owners (full_name, phone, affiliation) VALUES (?,?,?)`)
+              .run(ownerName, r.phone || '-', r.affiliation || 'Google Sheet');
+            owner = { id: Number(info.lastInsertRowid) };
+          }
+
+          const status = r.status || (String(r.belongTo).toLowerCase() === 'blocklist' ? 'blocked' : 'allowed');
+          const memberType = r.member_type || (status === 'blocked' ? 'blacklist' : 'official');
+          
           db.prepare(`INSERT INTO vehicles 
             (plate_number, plate_norm, province, plate_prefix, plate_digits, plate_type, brand, model, body_type, color,
-             owner_id, member_type, visit_target, status, valid_from, valid_to, note, excel_status, sheet_status)
-            VALUES (?, ?, 'กรุงเทพมหานคร', '', '', 'normal', 'ไม่ระบุ', 'ไม่ระบุ', 'sedan', 'white',
-             ?, ?, 'ปฏิบัติหน้าที่', ?, ?, ?, 'ซิงก์ดึงข้อมูลจาก Google Sheet', 'ok', 'ok')`).run(
-            r.plate, norm, owner.id, memberType, status, r.start || null, r.end || null
+             owner_id, member_type, visit_target, status, valid_from, valid_to, note, telegram_chat_id, excel_status, sheet_status)
+            VALUES (?, ?, ?, '', '', ?, ?, ?, ?, ?,
+             ?, ?, ?, ?, ?, ?, ?, ?, 'ok', 'ok')`).run(
+            r.plate || norm,
+            norm,
+            r.province || 'กรุงเทพมหานคร',
+            r.plate_type || 'white_black',
+            r.brand || 'ไม่ระบุ',
+            r.model || 'ไม่ระบุ',
+            r.body_type || 'sedan',
+            r.color || 'ขาว',
+            owner.id,
+            memberType,
+            r.visit_target || '',
+            status,
+            r.start || null,
+            r.end || null,
+            r.note || 'ซิงก์ดึงข้อมูลจาก Google Sheet',
+            r.telegram_chat_id || null
           );
           added++;
+        } else if (r.telegram_chat_id) {
+          db.prepare('UPDATE vehicles SET telegram_chat_id = COALESCE(telegram_chat_id, ?) WHERE plate_norm = ?').run(r.telegram_chat_id, norm);
         }
       }
     });
@@ -159,4 +205,71 @@ async function pullFromSheets() {
   }
 }
 
-module.exports = { syncPlates, resyncAll, removePlatesIfOrphaned, pullFromSheets, toHik, targetsEnabled, computeRow };
+/** ดึงข้อมูลทั้งหมดจาก แท็บ 2 (Full Registrations) ของ Excel กลับเข้ามาในฐานข้อมูล SQLite */
+async function pullFromExcel() {
+  if (!config.excel.enabled) {
+    return { count: 0, totalExcel: 0, message: 'ไม่ได้เปิดใช้งาน EXCEL_ENABLED=true' };
+  }
+  try {
+    const rows = await excelTarget.readRows();
+    if (!rows.length) return { count: 0, totalExcel: 0, message: 'ไม่พบข้อมูลในไฟล์ Excel แท็บ Full Registrations' };
+
+    let added = 0;
+    const { normalizePlate } = require('./plate');
+
+    const tx = db.transaction((list) => {
+      for (const r of list) {
+        const norm = normalizePlate(r.plate_norm || r.plate);
+        if (!norm) continue;
+        const exists = db.prepare('SELECT id FROM vehicles WHERE plate_norm = ?').get(norm);
+        if (!exists) {
+          const ownerName = r.owner_name || 'ซิงก์อัตโนมัติ (Excel)';
+          let owner = db.prepare('SELECT id FROM owners WHERE full_name = ?').get(ownerName);
+          if (!owner) {
+            const info = db.prepare(`INSERT INTO owners (full_name, phone, affiliation) VALUES (?,?,?)`)
+              .run(ownerName, r.phone || '-', r.affiliation || 'Excel');
+            owner = { id: Number(info.lastInsertRowid) };
+          }
+
+          const status = r.status || (String(r.belongTo).toLowerCase() === 'blocklist' ? 'blocked' : 'allowed');
+          const memberType = r.member_type || (status === 'blocked' ? 'blacklist' : 'official');
+          
+          db.prepare(`INSERT INTO vehicles 
+            (plate_number, plate_norm, province, plate_prefix, plate_digits, plate_type, brand, model, body_type, color,
+             owner_id, member_type, visit_target, status, valid_from, valid_to, note, telegram_chat_id, excel_status, sheet_status)
+            VALUES (?, ?, ?, '', '', ?, ?, ?, ?, ?,
+             ?, ?, ?, ?, ?, ?, ?, ?, 'ok', 'ok')`).run(
+            r.plate || norm,
+            norm,
+            r.province || 'กรุงเทพมหานคร',
+            r.plate_type || 'white_black',
+            r.brand || 'ไม่ระบุ',
+            r.model || 'ไม่ระบุ',
+            r.body_type || 'sedan',
+            r.color || 'ขาว',
+            owner.id,
+            memberType,
+            r.visit_target || '',
+            status,
+            r.start || null,
+            r.end || null,
+            r.note || 'ซิงก์ดึงข้อมูลจาก Excel',
+            r.telegram_chat_id || null
+          );
+          added++;
+        } else if (r.telegram_chat_id) {
+          db.prepare('UPDATE vehicles SET telegram_chat_id = COALESCE(telegram_chat_id, ?) WHERE plate_norm = ?').run(r.telegram_chat_id, norm);
+        }
+      }
+    });
+    tx(rows);
+
+    return { count: added, totalExcel: rows.length };
+  } catch (e) {
+    console.error('[pullFromExcel error]', e);
+    return { count: 0, totalExcel: 0, message: e.message };
+  }
+}
+
+module.exports = { syncPlates, resyncAll, removePlatesIfOrphaned, pullFromSheets, pullFromExcel, toHik, targetsEnabled, computeRow, computeFullRow };
+

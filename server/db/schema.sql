@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   sync_message  TEXT,
   synced_at     TEXT,
   submitted_ip  TEXT,
+  telegram_chat_id TEXT,
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at    TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE (plate_norm, province)

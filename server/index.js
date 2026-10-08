@@ -74,7 +74,18 @@ function ensureAdmin() {
 }
 ensureAdmin();
 
-// ---------- ซิงก์ดึงข้อมูลจาก Google Sheet เมื่อเซิร์ฟเวอร์เริ่มต้น ----------
+// ---------- ซิงก์ดึงข้อมูลจาก Excel และ Google Sheet เมื่อเซิร์ฟเวอร์เริ่มต้น ----------
+if (config.excel.enabled) {
+  const sync = require('./services/syncService');
+  sync.pullFromExcel()
+    .then((r) => {
+      if (r.count > 0) {
+        console.log(`[excel] 📥 ดึงข้อมูลรถ ${r.count} คัน (จากแท็บ Full Registrations ใน Excel) เข้าฐานข้อมูลสำเร็จ`);
+      }
+    })
+    .catch((e) => console.error('[excel auto-pull error]', e.message));
+}
+
 if (config.google.enabled) {
   const sync = require('./services/syncService');
   sync.pullFromSheets()
