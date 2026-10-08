@@ -32,6 +32,7 @@ const config = {
     scriptUrl: process.env.GOOGLE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycby5e3RSjzkgpzgIHNeBrLJkePgzlswVTKz1-daBVw_qY2GBBMmPuIS81kofNuAhqUwm/exec',
   },
   lprApiKey: process.env.LPR_API_KEY || '',
+  telegramGroupChatId: process.env.TELEGRAM_GROUP_CHAT_ID || '',
 };
 
 if (config.isProd) {

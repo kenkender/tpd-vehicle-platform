@@ -26,6 +26,7 @@ router.get('/reference', (req, res) => {
     colors: ref.COLORS,
     memberTypes: ref.MEMBER_TYPES.filter((m) => m.publicSelectable),
     brands: ref.BRANDS,
+    telegramGroupLink: require('../config').telegramGroupLink || process.env.TELEGRAM_GROUP_LINK || '',
   });
 });
 
@@ -39,6 +40,11 @@ router.post('/vehicles', submitLimiter, (req, res) => {
 
   try {
     const id = vehicles.create(value, { ip: req.ip, admin: false });
+    const createdVehicle = vehicles.getById(id);
+    if (createdVehicle) {
+      const telegram = require('../services/telegramService');
+      telegram.notifyNewRegistration(createdVehicle);
+    }
     return res.status(201).json({
       ok: true,
       reference: `TPD-${String(id).padStart(6, '0')}`,

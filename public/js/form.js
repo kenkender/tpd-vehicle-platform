@@ -109,6 +109,15 @@
 
     const bl = $('#brandList');
     Object.keys(REF.brands).forEach((b) => bl.appendChild(new Option(b)));
+
+    const tgLink = REF.telegramGroupLink || 'https://t.me/TPD_VehicleAlert_bot';
+    ['topTgBtn', 'tgGroupSideBtn', 'modalTgBtn'].forEach((id) => {
+      const btn = $(`#${id}`);
+      if (btn) {
+        btn.href = tgLink;
+        btn.classList.remove('hidden');
+      }
+    });
   }
 
   /* ---------- พรีวิวป้ายทะเบียน ---------- */

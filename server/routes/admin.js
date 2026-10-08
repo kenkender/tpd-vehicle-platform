@@ -104,6 +104,14 @@ router.post('/vehicles/:id/status', (req, res) => {
   if (!plate) return res.status(404).json({ error: 'not_found' });
   audit(req, 'set_status', `#${id} ${plate} -> ${status}`);
   sync.syncPlates([plate]).catch((err) => console.error('[bg sync error]', err));
+
+  // แจ้งเตือนผู้ใช้ผ่าน Telegram หากมี Telegram Chat ID
+  const updatedVehicle = vehicles.getById(id);
+  if (updatedVehicle && updatedVehicle.telegram_chat_id) {
+    const telegram = require('../services/telegramService');
+    telegram.notifyStatusChange(updatedVehicle, status);
+  }
+
   return res.json({ ok: true });
 });
 
