@@ -12,7 +12,7 @@
     'หลายสี': 'conic-gradient(#ff5d73, #ffd21f, #2fd9aa, #5b8cff, #ff5d73)',
   };
   const MEMBER_ICON = { official: '🛡️', staff: '🪪', visitor: '🤝' };
-  const SWATCH_TEXT = { white_black: 'กก', white_green: 'กก', white_blue: 'กก', yellow: 'กก', motorcycle: 'กก', special: 'กก' };
+  const SWATCH_TEXT = { white_black: 'กก', white_green: 'กก', white_blue: 'กก', green_white: 'กก', yellow: 'กก', motorcycle: 'กก', special: 'กก' };
 
   let REF = null;
 

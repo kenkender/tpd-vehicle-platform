@@ -19,8 +19,9 @@ const PLATE_TYPES = [
   { value: 'white_black', label: 'ป้ายขาว ตัวหนังสือดำ', hint: 'รถยนต์นั่งส่วนบุคคล ไม่เกิน 7 ที่นั่ง' },
   { value: 'white_green', label: 'ป้ายขาว ตัวหนังสือเขียว', hint: 'รถกระบะ / บรรทุกส่วนบุคคล' },
   { value: 'white_blue', label: 'ป้ายขาว ตัวหนังสือฟ้า', hint: 'รถยนต์นั่งเกิน 7 ที่นั่ง / รถตู้' },
+  { value: 'green_white', label: 'ป้ายเขียว-ขาว (รถเช่า)', hint: 'รถบริการ / รถเช่า' },
   { value: 'yellow', label: 'ป้ายเหลือง', hint: 'รถรับจ้าง / สาธารณะ' },
-  { value: 'motorcycle', label: 'ป้ายมอเตอร์ไซค์', hint: 'รถจักรยานยนต์' },
+  { value: 'motorcycle', label: 'ป้ายจักรยานยนต์', hint: 'รถจักรยานยนต์' },
   { value: 'special', label: 'ป้ายประมูล / ป้ายแดง / ป้ายทูต', hint: 'ป้ายพิเศษ' },
 ];
 

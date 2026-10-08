@@ -221,6 +221,7 @@ input[type='date'], input[type='datetime-local'] { color-scheme: dark; }
 .plate.t-white_black { --p-bg: #fbfbfb; --p-fg: #14141a; }
 .plate.t-white_green { --p-bg: #fbfbfb; --p-fg: #0c7a3b; }
 .plate.t-white_blue { --p-bg: #fbfbfb; --p-fg: #1459c9; }
+.plate.t-green_white { --p-bg: #0c7a3b; --p-fg: #ffffff; --p-border: #05401e; }
 .plate.t-yellow { --p-bg: #ffd21f; --p-fg: #14141a; --p-border: #6b5200; }
 .plate.t-motorcycle { --p-bg: #fbfbfb; --p-fg: #14141a; min-width: 150px; }
 .plate.t-special { --p-bg: #d6232f; --p-fg: #fff; --p-border: #6e0d14; }

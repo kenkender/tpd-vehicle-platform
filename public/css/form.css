@@ -89,6 +89,7 @@
   display: grid; place-items: center; font: 700 0.8rem var(--font-head); background: #fff; color: #111;
 }
 .swatch.t-white_green { color: #0c7a3b; } .swatch.t-white_blue { color: #1459c9; }
+.swatch.t-green_white { background: #0c7a3b; color: #ffffff; border-color: #05401e; }
 .swatch.t-yellow { background: #ffd21f; border-color: #6b5200; }
 .swatch.t-special { background: #d6232f; color: #fff; border-color: #6e0d14; }
 .swatch.t-motorcycle { width: 38px; }
