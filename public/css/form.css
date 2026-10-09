@@ -171,9 +171,17 @@
   .submit-bar {
     position: sticky; bottom: 0; z-index: 10;
     margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: linear-gradient(180deg, transparent, rgba(6, 11, 31, 0.95) 28%);
+    background: rgba(6, 11, 31, 0.96);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
   }
-  .consent { display: none; }
+  .consent {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--faint);
+    line-height: 1.45;
+    margin-bottom: 6px;
+  }
 }
 
 @media (max-width: 380px) {
