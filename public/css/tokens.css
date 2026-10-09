@@ -161,6 +161,19 @@ input[type='date'], input[type='datetime-local'] { color-scheme: dark; }
 .btn-success:hover { background: linear-gradient(135deg, #95f5d7, #3ee3b4); }
 .btn-danger { color: #fff; background: linear-gradient(135deg, #ff8a9b, var(--danger)); border-color: transparent; }
 .btn-danger:hover { background: linear-gradient(135deg, #ff9cab, #ff7188); }
+.btn-telegram {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #2AABEE, #229ED9) !important;
+  border: none !important;
+  box-shadow: 0 6px 18px -4px rgba(34, 158, 217, 0.5);
+}
+.btn-telegram:hover, .btn-telegram:focus {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #37B7FA, #25A7E6) !important;
+  box-shadow: 0 8px 22px -4px rgba(34, 158, 217, 0.7);
+  transform: translateY(-1px);
+}
+.btn-telegram:active { transform: translateY(0) scale(0.98); }
 .btn-ghost { background: transparent; }
 .btn-sm { min-height: 38px; padding: 0 14px; font-size: 0.86rem; border-radius: 10px; }
 .btn-block { width: 100%; }

@@ -154,20 +154,32 @@
   .submit-bar .btn { width: auto; min-width: 240px; }
 }
 
-/* มือถือ: พรีวิวป้ายทะเบียนเล็กลงให้พอดีจอ */
-@media (max-width: 420px) {
-  .plate { min-width: 160px; padding: 8px 16px 6px; }
-  .brand-text strong { font-size: 0.9rem; }
-}
-
-/* มือถือ: ปุ่มบันทึกลอยติดขอบล่าง กดง่ายด้วยนิ้วโป้ง */
+/* มือถือ: ปรับแต่งให้โปร่ง สวยงาม ไม่บีบแน่น */
 @media (max-width: 599px) {
+  .topbar-inner { padding: 8px 12px; gap: 8px; }
+  .brand { gap: 8px; min-width: 0; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-text strong { font-size: 0.86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-text small { font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #topTgBtn {
+    min-height: 34px; height: 34px; padding: 0 10px; font-size: 0.8rem; flex: none; border-radius: 8px;
+  }
+  .side-card { padding: 18px 14px; margin-bottom: 4px; }
+  .side-note { font-size: 0.82rem; line-height: 1.45; }
+  #tgGroupSideWrap { margin-top: 14px; }
+  #tgGroupSideBtn { min-height: 44px; font-size: 0.9rem; border-radius: 12px; }
   .submit-bar {
     position: sticky; bottom: 0; z-index: 10;
     margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     background: linear-gradient(180deg, transparent, rgba(6, 11, 31, 0.95) 28%);
   }
   .consent { display: none; }
+}
+
+@media (max-width: 380px) {
+  .brand-text small { display: none; }
+  .plate { min-width: 150px; padding: 6px 14px 4px; }
+  #topTgBtn span { font-size: 0.78rem; }
 }
 
 /* ---------- Success popup modal ---------- */
