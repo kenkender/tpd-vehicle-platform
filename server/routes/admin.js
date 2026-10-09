@@ -105,9 +105,9 @@ router.post('/vehicles/:id/status', (req, res) => {
   audit(req, 'set_status', `#${id} ${plate} -> ${status}`);
   sync.syncPlates([plate]).catch((err) => console.error('[bg sync error]', err));
 
-  // แจ้งเตือนผู้ใช้ผ่าน Telegram หากมี Telegram Chat ID
+  // แจ้งเตือนผู้ใช้และกลุ่ม Telegram เมื่อมีการเปลี่ยนสถานะ
   const updatedVehicle = vehicles.getById(id);
-  if (updatedVehicle && updatedVehicle.telegram_chat_id) {
+  if (updatedVehicle) {
     const telegram = require('../services/telegramService');
     telegram.notifyStatusChange(updatedVehicle, status);
   }
