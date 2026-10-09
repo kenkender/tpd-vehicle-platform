@@ -60,39 +60,71 @@ function handleRequest(e) {
       action = e.parameter.action;
     }
 
-    // ---------- กรณีอ่านข้อมูลทั้งหมดจากแท็บที่ 2 (get_rows) ----------
+    // ---------- กรณีอ่านข้อมูลทั้งหมด (get_rows: ดึงจากแท็บ 2 ก่อน ถ้าไม่มีให้อ่านจากแท็บ 1) ----------
     if (action === 'get_rows') {
-      var lastRow = fullSheet.getLastRow();
+      var targetSheet = fullSheet;
+      var lastRow = targetSheet.getLastRow();
+      var isFullFormat = true;
+      
+      // ถ้าแท็บที่ 2 ยังไม่มีข้อมูล ให้สลับไปอ่านจากแท็บที่ 1 (Hikvision) แทน
+      if (lastRow <= 1) {
+        targetSheet = hikSheet;
+        lastRow = targetSheet.getLastRow();
+        isFullFormat = false;
+      }
+
       if (lastRow <= 1) {
         return ContentService.createTextOutput(JSON.stringify({ ok: true, rows: [] }))
           .setMimeType(ContentService.MimeType.JSON);
       }
-      var rangeValues = fullSheet.getRange(2, 1, lastRow - 1, 18).getValues();
+
       var rows = [];
-      for (var i = 0; i < rangeValues.length; i++) {
-        var r = rangeValues[i];
-        if (r[0] || r[1]) {
-          rows.push({
-            plate: String(r[0] || r[1]).trim(),
-            plate_norm: String(r[1] || r[0]).trim(),
-            province: String(r[2] || 'กรุงเทพมหานคร').trim(),
-            plate_type: String(r[3] || 'white_black').trim(),
-            brand: String(r[4] || 'ไม่ระบุ').trim(),
-            model: String(r[5] || 'ไม่ระบุ').trim(),
-            body_type: String(r[6] || 'sedan').trim(),
-            color: String(r[7] || 'ขาว').trim(),
-            member_type: String(r[8] || 'official').trim(),
-            owner_name: String(r[9] || 'ไม่ระบุ').trim(),
-            phone: String(r[10] || '-').trim(),
-            affiliation: String(r[11] || '-').trim(),
-            national_id: String(r[12] || '').trim(),
-            status: String(r[13] || 'pending').trim(),
-            belongTo: String(r[13]).toLowerCase() === 'blocked' ? 'Blocklist' : 'Allowlist',
-            telegram_chat_id: String(r[14] || '').trim(),
-            visit_target: String(r[15] || '').trim(),
-            note: String(r[16] || '').trim(),
-            created_at: r[17] ? String(r[17]) : ''
-          });
+      if (isFullFormat) {
+        var rangeValues = targetSheet.getRange(2, 1, lastRow - 1, 18).getValues();
+        for (var i = 0; i < rangeValues.length; i++) {
+          var r = rangeValues[i];
+          if (r[0] || r[1]) {
+            rows.push({
+              plate: String(r[0] || r[1]).trim(),
+              plate_norm: String(r[1] || r[0]).trim(),
+              province: String(r[2] || 'กรุงเทพมหานคร').trim(),
+              plate_type: String(r[3] || 'white_black').trim(),
+              brand: String(r[4] || 'ไม่ระบุ').trim(),
+              model: String(r[5] || 'ไม่ระบุ').trim(),
+              body_type: String(r[6] || 'sedan').trim(),
+              color: String(r[7] || 'ขาว').trim(),
+              member_type: String(r[8] || 'official').trim(),
+              owner_name: String(r[9] || 'ไม่ระบุ').trim(),
+              phone: String(r[10] || '-').trim(),
+              affiliation: String(r[11] || '-').trim(),
+              national_id: String(r[12] || '').trim(),
+              status: String(r[13] || 'pending').trim(),
+              belongTo: String(r[13]).toLowerCase() === 'blocked' ? 'Blocklist' : 'Allowlist',
+              telegram_chat_id: String(r[14] || '').trim(),
+              visit_target: String(r[15] || '').trim(),
+              note: String(r[16] || '').trim(),
+              created_at: r[17] ? String(r[17]) : ''
+            });
+          }
+        }
+      } else {
+        var rangeValues1 = targetSheet.getRange(2, 1, lastRow - 1, 5).getValues();
+        for (var j = 0; j < rangeValues1.length; j++) {
+          var r1 = rangeValues1[j];
+          if (r1[0]) {
+            rows.push({
+              plate: String(r1[0]).trim(),
+              plate_norm: String(r1[0]).trim(),
+              belongTo: String(r1[1] || 'Allowlist').trim(),
+              status: String(r1[1]).toLowerCase() === 'blocklist' ? 'blocked' : 'allowed',
+              cardNo: String(r1[2] || '').trim(),
+              start: String(r1[3] || '').trim(),
+              end: String(r1[4] || '').trim(),
+              owner_name: 'ซิงก์อัตโนมัติ (Google Sheet)',
+              brand: 'ไม่ระบุ',
+              model: 'ไม่ระบุ'
+            });
+          }
         }
       }
       return ContentService.createTextOutput(JSON.stringify({ ok: true, rows: rows }))

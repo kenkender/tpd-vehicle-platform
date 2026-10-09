@@ -18,7 +18,7 @@ function computeRow(plateNorm) {
   if (vs.some((v) => v.status === 'blocked' || v.member_type === 'blacklist')) {
     return { plate: plateNorm, belongTo: 'Blocklist', cardNo: '', start: '', end: '' };
   }
-  const allowed = vs.filter((v) => v.status === 'allowed');
+  const allowed = vs.filter((v) => v.status !== 'blocked');
   if (!allowed.length) return null;
   const starts = allowed.map((v) => v.valid_from).filter(Boolean).sort();
   const ends = allowed.map((v) => v.valid_to || config.excel.defaultAllowEnd).sort();
